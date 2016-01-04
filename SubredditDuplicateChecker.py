@@ -18,7 +18,7 @@ subreddit - the name of the subreddit to check (accepts multireddit syntax)
 interval - check for new posts every interval seconds
 num_posts - the number of posts to grab each check
 '''
-def run(user_agent, subreddit, interval = 10, num_posts = 5):
+def run(user_agent, subreddit, interval = 60, num_posts = 20):
     #dictionary of posts, key = post id, value = submission
     seen = {}
     # dictionary of hashes, key = hash, value = list of posts
@@ -48,7 +48,7 @@ def run(user_agent, subreddit, interval = 10, num_posts = 5):
                 if "imgur.com/" not in submission.url:
                     continue
                 split = submission.url.split(".com/")
-                #if the post has a / after the .com/, it links to an album. ignore
+                #if the post has a / after the .com/, it's an album, so ignore
                 if "/" in split[1]:
                     continue
 
@@ -68,7 +68,12 @@ def run(user_agent, subreddit, interval = 10, num_posts = 5):
 
                 #if this post is a duplicate, add it to the list for that hash
                 if hashes.has_key(hash):
-                    print "{0} copied {1}!!!".format(submission.id, hashes[hash][0])
+                    if submission.author == seen[hashes[hash][0]].author:
+                        print "{0} posted duplicate posts {1} and {2}".format(
+                            submission.author, submission.id, hashes[hash][0])
+                    else:
+                        print "{0} copied {1}!!!".format(
+                            submission.id, hashes[hash][0])
                     hashes[hash].append(submission.id)
                 else:
                     print "new post found: {0}".format(submission.id)
@@ -87,4 +92,4 @@ def run(user_agent, subreddit, interval = 10, num_posts = 5):
         sleep(interval)
 
 if __name__ == "__main__":
-    run("duplicatechecker" + str(randint(0, 9999)), "pics+funny+me_irl", num_posts = 10)
+    run("duplicatechecker" + str(randint(0, 9999)), "pics+funny+me_irl")
